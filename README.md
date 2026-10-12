@@ -26,7 +26,7 @@ A list of plain values, such as a list of authors, gives one column with the nam
 
 Click a column header to sort the rows. Click again to sort the other way, and a third time to go back to the order of the base. Numbers sort as numbers, dates in the form YYYY-MM-DD sort in date order, and empty cells stay at the end. The sort is saved with the view in the base file. Old views with one sort column still work.
 
-To sort by several columns, click the first header, then hold Shift and click another header. For example, sort by `owner` first, then `due` within each owner. With two or more rules, each sorted header shows its priority number. Shift-click an active header to reverse its order, then Shift-click again to remove that rule. A click without Shift clears the other sort rules. Rows with equal values for all rules keep their base order. On a phone without a keyboard, you can sort by one column only. This feature is free.
+To sort by several columns, click the first header, then hold Shift and click another header. For example, sort by `owner` first, then `due` within each owner. With two or more rules, each sorted header shows its priority number. Shift-click an active header to reverse its order, then Shift-click again to remove that rule. A click without Shift clears the other sort rules. Rows with equal values keep their base order. On a phone without a keyboard, you can sort by one column only. This feature is free.
 
 <img src="https://raw.githubusercontent.com/theluckystrike/flatten-table/HEAD/docs/multi-sort.png" alt="Milestones sorted by owner first and due date second, with priority numbers on the headers" width="720">
 
@@ -34,13 +34,13 @@ To sort by several columns, click the first header, then hold Shift and click an
 
 ### Live update and embeds
 
-When you change a property, the table draws again after a short delay. You can embed the view in any note with `![[Your base.base#View name]]`, for example in a weekly review.
+When you change a property, the table draws again after a short delay. You can embed the view in a note with `![[Your base.base#View name]]`, for example in a weekly review.
 
 <img src="https://raw.githubusercontent.com/theluckystrike/flatten-table/HEAD/docs/embedded.png" alt="The flat table embedded in a weekly review note" width="720">
 
 ### Group rows (Pro)
 
-Group the rows by any column, or by Source. Each group has a header with its value and the number of rows.
+Group the rows by a column, or by Source. Each group has a header with its value and the number of rows.
 
 <img src="https://raw.githubusercontent.com/theluckystrike/flatten-table/HEAD/docs/group.png" alt="Milestones grouped by owner with a row count for each owner" width="720">
 
@@ -52,7 +52,7 @@ The filters of the base select notes. The row filter of Flatten Table selects it
 
 ### Export to a note or CSV (Pro)
 
-Export the flat table, with its filter and sort, to a new Markdown note or a CSV file. The Markdown table links each row back to its source note. Use the buttons above the table or the commands "Export the flat table as a Markdown note" and "Export the flat table as a CSV file".
+Export the flat table, with its filter and sort, to a new Markdown note or a CSV file. With the Source column on, the Markdown table links each row to its note. Use the buttons above the table or the commands "Export the flat table as a Markdown note" and "Export the flat table as a CSV file".
 
 <img src="https://raw.githubusercontent.com/theluckystrike/flatten-table/HEAD/docs/export.png" alt="A new note that holds the exported Markdown table with source links" width="720">
 

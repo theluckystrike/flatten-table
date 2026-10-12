@@ -82,7 +82,7 @@ function isObject(v: unknown): v is Record<string, unknown> {
 
 /** A key of an object, matched without regard to case when there is no exact key. */
 function getKey(obj: Record<string, unknown>, key: string): unknown {
-	if (key in obj) return obj[key];
+	if (Object.prototype.hasOwnProperty.call(obj, key)) return obj[key];
 	const want = normName(key);
 	const hit = Object.keys(obj).find((k) => normName(k) === want);
 	return hit === undefined ? undefined : obj[hit];

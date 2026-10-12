@@ -59,5 +59,7 @@ export function tokenize(cell: string): Token[] {
 		push(s.slice(0, n));
 		s = s.slice(n);
 	}
+	// The loop guard stops a very long cell early. The rest stays as plain text, so no text is lost.
+	if (s.length > 0) push(s);
 	return out;
 }

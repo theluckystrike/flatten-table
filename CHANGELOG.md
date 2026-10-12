@@ -1,5 +1,11 @@
 # flatten-table
 
+## 1.1.1
+
+### Patch Changes
+
+- ccd16f3: Fix a table crash on a link target with a bare percent sign, show script links from properties as plain text, keep the full text of very long cells and ignore Object method names as property names.
+
 ## 1.1.0
 
 ### Minor Changes

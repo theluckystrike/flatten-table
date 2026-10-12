@@ -219,8 +219,10 @@ export class FlattenView extends BasesView implements HoverParent {
 				this.link(td, t.target, t.text, sourcePath);
 				return;
 			case 'link':
-				if (/^[a-z][a-z0-9+.-]*:/i.test(t.href)) td.createEl('a', { cls: 'external-link', text: t.text, href: t.href, attr: { target: '_blank', rel: 'noopener' } });
-				else this.link(td, decodeURI(t.href), t.text, sourcePath);
+				// A script URL from a property must not become a link, so it shows as plain text.
+				if (/^\s*(?:javascript|data|vbscript):/i.test(t.href)) td.appendText(t.text);
+				else if (/^[a-z][a-z0-9+.-]*:/i.test(t.href)) td.createEl('a', { cls: 'external-link', text: t.text, href: t.href, attr: { target: '_blank', rel: 'noopener' } });
+				else this.link(td, safeDecode(t.href), t.text, sourcePath);
 				return;
 			case 'tag':
 				td.createEl('a', { cls: 'tag', text: t.text, href: t.text });
@@ -251,6 +253,15 @@ export class FlattenView extends BasesView implements HoverParent {
 	/** Shows a notice that a feature needs Pro. */
 	static needsPro(feature: string): void {
 		new Notice(`${feature} is a pro feature. Sponsor on GitHub, then sign in from the plugin settings.`);
+	}
+}
+
+/** decodeURI that keeps the text as it is when it holds a bare "%" (decodeURI throws on it). */
+function safeDecode(href: string): string {
+	try {
+		return decodeURI(href);
+	} catch {
+		return href;
 	}
 }
 
