@@ -1,7 +1,7 @@
 import { BasesView, Keymap, Notice, TFile, setIcon, type BasesAllOptions, type BasesViewConfig, type HoverParent, type HoverPopover, type QueryController } from 'obsidian';
 import { tokenize, type Token } from './inline';
 import { FREE_MAX_SOURCES, isPro, onProChange } from './pro';
-import { INDEX_COLUMN, SOURCE_COLUMN, flatten, noteName, type Flat, type FilterOp, type FlattenOptions, type Row, type SourceNote } from './flatten';
+import { INDEX_COLUMN, SOURCE_COLUMN, flatten, nextSort, normName, noteName, readSort, type Flat, type FilterOp, type FlattenOptions, type Row, type SourceNote } from './flatten';
 import type FlattenTablePlugin from './main';
 
 export const VIEW_ID = 'flatten-table';
@@ -86,14 +86,14 @@ export class FlattenView extends BasesView implements HoverParent {
 			return typeof v === 'string' ? v : '';
 		};
 		const list = c.get('columns');
-		const sort = c.get(SORT_KEY) as FlattenOptions['sort'] | undefined;
+		const sort = readSort(c.get(SORT_KEY));
 		return {
 			property: propertyName(c.get('property')),
 			columns: Array.isArray(list) ? list.filter((x): x is string => typeof x === 'string') : [],
 			keepEmpty: c.get('keepEmpty') === true,
 			showSource: c.get('showSource') !== false,
 			showIndex: c.get('showIndex') === true,
-			sort: sort && typeof sort.column === 'string' ? sort : null,
+			sort,
 			groupBy: pro ? str('groupColumn') : '',
 			filter: pro && str('filterColumn') ? { column: str('filterColumn'), op: (str('filterOp') || 'contains') as FilterOp, value: str('filterValue') } : null,
 			maxSources: pro ? 0 : FREE_MAX_SOURCES,
@@ -172,20 +172,26 @@ export class FlattenView extends BasesView implements HoverParent {
 
 	private drawHead(table: HTMLTableElement, cols: string[], opts: ViewOptions): void {
 		const tr = table.createEl('thead').createEl('tr');
+		const rules = readSort(opts.sort);
 		for (const name of cols) {
-			const active = opts.sort && opts.sort.column.toLowerCase() === name.toLowerCase() ? opts.sort.dir : null;
-			const th = tr.createEl('th', { attr: { 'aria-sort': active === 'asc' ? 'ascending' : active === 'desc' ? 'descending' : 'none', title: 'Sort by this column' } });
-			th.createSpan({ text: name });
-			if (active) setIcon(th.createSpan({ cls: 'flatten-table-sort' }), active === 'asc' ? 'arrow-up' : 'arrow-down');
-			th.addEventListener('click', () => this.cycleSort(name, active));
+			const priority = rules.findIndex((r) => normName(r.column) === normName(name));
+			const active = rules[priority]?.dir;
+			const hint = 'Click to sort this column. Shift-click to add or change a sort rule.';
+			const th = tr.createEl('th', { attr: { 'aria-sort': priority === 0 ? (active === 'asc' ? 'ascending' : 'descending') : active ? 'other' : 'none', title: hint } });
+			const button = th.createEl('button', {
+				cls: 'flatten-table-sort-button',
+				attr: { type: 'button', 'aria-label': `${name}${active ? `, sort ${priority + 1}, ${active === 'asc' ? 'ascending' : 'descending'}` : ''}. ${hint}` },
+			});
+			button.createSpan({ text: name });
+			if (active) {
+				setIcon(button.createSpan({ cls: 'flatten-table-sort' }), active === 'asc' ? 'arrow-up' : 'arrow-down');
+				if (rules.length > 1) button.createSpan({ cls: 'flatten-table-sort-priority', text: String(priority + 1), attr: { 'aria-hidden': 'true' } });
+			}
+			th.addEventListener('click', (event) => {
+				this.config.set(SORT_KEY, nextSort(this.config.get(SORT_KEY), name, event.shiftKey));
+				this.schedule(0);
+			});
 		}
-	}
-
-	/** Header click: ascending, then descending, then no sort. Stored in the base file with the view. */
-	private cycleSort(column: string, active: 'asc' | 'desc' | null): void {
-		const next = active === null ? { column, dir: 'asc' } : active === 'asc' ? { column, dir: 'desc' } : null;
-		this.config.set(SORT_KEY, next);
-		this.schedule(0);
 	}
 
 	private drawRow(body: HTMLElement, row: Row, opts: ViewOptions): void {

@@ -2,7 +2,7 @@
 
 Flatten Table shows one table row for each item of a list property. A note can hold a list of objects in its properties, for example the milestones of a project or the roles of a person. The core table view of Bases gives one row per note, so the whole list is one cell. Flatten Table gives each item its own row, and the keys of the items become the columns. Your data stays in the properties of your notes.
 
-Flatten Table is a view for the core Bases plugin. The base selects the notes, and Flatten Table draws the rows. It uses only the public Bases API for plugins. It does the same job as the `FLATTEN` command of Dataview.
+Flatten Table is a view for Bases. The base selects notes; Flatten Table draws rows through the public Bases API.
 
 <img src="https://raw.githubusercontent.com/theluckystrike/flatten-table/HEAD/docs/flatten-table.gif" alt="A core table with one row per project note, then the same base flattened to one row per milestone, sorted by hours and grouped by owner" width="720">
 
@@ -16,15 +16,19 @@ The core table view puts the full list in one cell:
 
 <img src="https://raw.githubusercontent.com/theluckystrike/flatten-table/HEAD/docs/one-row-per-note.png" alt="The core Bases table with one row per project note and the milestone list as text in one cell" width="720">
 
-The same base in a Flatten Table view gives 43 rows from 11 project notes:
+The flat view gives 43 rows from 11 project notes:
 
 <img src="https://raw.githubusercontent.com/theluckystrike/flatten-table/HEAD/docs/flatten.png" alt="Flatten Table with one row per milestone and the columns step, owner, due, status and hours" width="720">
 
 A list of plain values, such as a list of authors, gives one column with the name of the property. A nested object in an item gives dotted columns, for example `who.name` and `who.team`.
 
-### Sort by any column
+### Sort by several columns
 
-Click a column header to sort the rows. Click again to sort the other way, and a third time to go back to the order of the base. Numbers sort as numbers, dates in the form YYYY-MM-DD sort in date order, and empty cells stay at the end. The sort is saved with the view in the base file.
+Click a column header to sort the rows. Click again to sort the other way, and a third time to go back to the order of the base. Numbers sort as numbers, dates in the form YYYY-MM-DD sort in date order, and empty cells stay at the end. The sort is saved with the view in the base file. Old views with one sort column still work.
+
+To sort by several columns, click the first header, then hold Shift and click another header. For example, sort by `owner` first, then `due` within each owner. With two or more rules, each sorted header shows its priority number. Shift-click an active header to reverse its order, then Shift-click again to remove that rule. A click without Shift clears the other sort rules. Rows with equal values for all rules keep their base order. On a phone without a keyboard, you can sort by one column only. This feature is free.
+
+<img src="https://raw.githubusercontent.com/theluckystrike/flatten-table/HEAD/docs/multi-sort.png" alt="Milestones sorted by owner first and due date second, with priority numbers on the headers" width="720">
 
 <img src="https://raw.githubusercontent.com/theluckystrike/flatten-table/HEAD/docs/sort.png" alt="The flat table sorted by the due column" width="720">
 
@@ -123,10 +127,6 @@ No. It only reads the properties of your notes. Export creates a new file and do
 ### How is this different from Dataview?
 
 Dataview has `FLATTEN` in its query language, and it does not need Bases. Flatten Table works inside Bases: you get the base filters, the view menu and embeds, and you write no query. The request for this in Bases is forum topic 105425, "Bases: a DV FLATTEN solution to allow 1 file multi-entry".
-
-### How fast is it?
-
-In the end-to-end test with 500 notes and 2,500 rows, a full draw took 12 to 61 ms on an M3 Pro Mac. Flatten Table reads the properties from the metadata cache of Obsidian, so it opens no file.
 
 ## Payment, account and network
 

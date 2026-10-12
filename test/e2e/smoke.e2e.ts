@@ -153,6 +153,60 @@ describe(`${pluginId} in the real app`, function () {
 		await waitFor((x) => x.firstHours === start.firstHours, 'back to base order');
 	});
 
+	it('sorts by owner then due date for free and keeps rules after a reload', async function () {
+		// Use a separate base so earlier tabs cannot save an old sort over this test's sort.
+		const basePath = `${DIR}/Multi-sort.base`;
+		const content = await browser.executeObsidian(async ({ app }, path) => app.vault.read(app.vault.getFileByPath(path)!), `${DIR}/Projects.base`);
+		await obsidianPage.write(basePath, content);
+		await obsidianPage.openFile(basePath);
+		await waitFor((x) => x.rows === 43, 'table not drawn');
+		const check = async (click: boolean) => browser.executeObsidian(async ({ app }, id, apply) => {
+			interface V {
+				config: { get(key: string): unknown; set(key: string, value: unknown): void };
+				render(): void;
+				last: { rows: { cells: string[] }[] };
+				containerEl: HTMLElement;
+			}
+			const p = (app as unknown as { plugins: { plugins: Record<string, { views: Set<V> }> } }).plugins.plugins[id]!;
+			const v = [...p.views].find((view) => view.containerEl.isConnected && view.containerEl.offsetParent !== null)!;
+			if (apply) {
+				v.config.set('flattenSort', null);
+				v.render();
+				const header = (name: string) => [...v.containerEl.querySelectorAll<HTMLElement>('th')].find((th) => th.querySelector('button > span')?.textContent === name)!;
+				header('owner').click();
+				await new Promise((r) => setTimeout(r, 300));
+				header('due').dispatchEvent(new MouseEvent('click', { shiftKey: true, bubbles: true }));
+				await new Promise((r) => setTimeout(r, 500));
+			}
+			return {
+				rules: v.config.get('flattenSort'),
+				values: v.last.rows.map((row) => [row.cells[1]!, row.cells[2]!]),
+				priorities: [...v.containerEl.querySelectorAll('.flatten-table-sort-priority')].map((el) => el.textContent),
+			};
+		}, pluginId, click);
+		const sorted = await check(true);
+		expect(sorted.rules).toEqual([{ column: 'owner', dir: 'asc' }, { column: 'due', dir: 'asc' }]);
+		expect(sorted.priorities).toEqual(['1', '2']);
+		for (let i = 1; i < sorted.values.length; i++) {
+			const before = sorted.values[i - 1]!;
+			const after = sorted.values[i]!;
+			expect(before[0]! < after[0]! || (before[0] === after[0] && before[1]! <= after[1]!)).toBe(true);
+		}
+		// Bases saves view changes after a delay. Check the file before the reload reads it again.
+		await browser.waitUntil(async () => browser.executeObsidian(async ({ app }, path) => {
+			const text = await app.vault.read(app.vault.getFileByPath(path)!);
+			return text.includes('- column: owner') && text.includes('- column: due');
+		}, basePath), { timeout: 10000, interval: 250, timeoutMsg: 'sort rules did not reach the base file' });
+		expect((await reloadPlugin(pluginId)).errors).toEqual([]);
+		await waitFor((x) => x.rows === 43, 'table not drawn after reload');
+		expect(await check(false)).toEqual(sorted);
+		await browser.executeObsidian(({ app }, id) => {
+			interface V { config: { set(key: string, value: unknown): void }; render(): void; containerEl: HTMLElement }
+			const p = (app as unknown as { plugins: { plugins: Record<string, { views: Set<V> }> } }).plugins.plugins[id]!;
+			for (const v of p.views) if (v.containerEl.offsetParent !== null) { v.config.set('flattenSort', null); v.render(); }
+		}, pluginId);
+	});
+
 	it('redraws when a list property changes', async function () {
 		await obsidianPage.openFile(`${DIR}/Projects.base`);
 		await waitFor((x) => x.rows === 43, 'table not drawn');

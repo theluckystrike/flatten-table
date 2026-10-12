@@ -22,6 +22,14 @@
 		"wait": 900
 	},
 	{
+		"feature": "multi-sort",
+		"caption": "Sort by owner first, then by due date. The header numbers show priority.",
+		"note": "Projects.base",
+		"eval": "(async () => { app.plugins.plugins['flatten-table'].pro.signOut(); await new Promise(r => setTimeout(r, 700)); const view = app.plugins.plugins['flatten-table'].targetView(); view.config.set('flattenSort', null); view.render(); const header = name => [...document.querySelectorAll('.workspace-leaf.mod-active .flatten-table th')].find(x => x.querySelector('button > span').textContent === name); header('owner').click(); await new Promise(r => setTimeout(r, 700)); header('due').dispatchEvent(new MouseEvent('click', { shiftKey: true, bubbles: true })); await new Promise(r => setTimeout(r, 700)); if (view.last.rows.length !== 43 || view.options().sort.length !== 2) throw new Error('Multi-column sort failed'); return 'ok'; })()",
+		"after": "(async () => { const view = app.plugins.plugins['flatten-table'].targetView(); view.config.set('flattenSort', null); view.render(); return 'ok'; })()",
+		"wait": 900
+	},
+	{
 		"feature": "embedded",
 		"caption": "The flat table embedded in a weekly review note.",
 		"note": "Weekly review.md",

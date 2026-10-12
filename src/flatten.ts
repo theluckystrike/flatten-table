@@ -10,6 +10,13 @@ export interface SourceNote {
 	frontmatter: Record<string, unknown> | null | undefined;
 }
 
+export interface SortRule {
+	column: string;
+	dir: 'asc' | 'desc';
+}
+
+export type SortSpec = SortRule | SortRule[];
+
 export interface FlattenOptions {
 	/** The list property to flatten. A dotted path ("project.roles") reads a key inside an object. */
 	property: string;
@@ -17,7 +24,8 @@ export interface FlattenOptions {
 	columns?: string[];
 	/** A note without items gives one row with empty cells. */
 	keepEmpty?: boolean;
-	sort?: { column: string; dir: 'asc' | 'desc' } | null;
+	/** Sort rules in priority order. A single rule from an older base still works. */
+	sort?: SortSpec | null;
 	/** Pro: keep only rows that pass. */
 	filter?: { column: string; op: FilterOp; value: string } | null;
 	/** Pro: group the rows by the value of this column. */
@@ -227,15 +235,49 @@ export function compareCells(a: string, b: string): number {
 	return collator.compare(a, b);
 }
 
-/** Stable sort of rows by one column. Empty cells stay at the end in both directions. */
-export function sortRows(rows: Row[], columns: string[], sort: NonNullable<FlattenOptions['sort']>): Row[] {
-	const sign = sort.dir === 'desc' ? -1 : 1;
-	const keyed = rows.map((row, i) => ({ row, i, v: cellOf(row, columns, sort.column) ?? '' }));
+/** Reads old and new sort data. Drops invalid rules and repeated column names. */
+export function readSort(value: unknown): SortRule[] {
+	const rules: SortRule[] = [];
+	const seen = new Set<string>();
+	for (const entry of Array.isArray(value) ? value : [value]) {
+		if (!isObject(entry) || typeof entry.column !== 'string' || (entry.dir !== 'asc' && entry.dir !== 'desc')) continue;
+		const column = entry.column.trim();
+		const key = normName(column);
+		if (!key || seen.has(key)) continue;
+		seen.add(key);
+		rules.push({ column, dir: entry.dir });
+	}
+	return rules;
+}
+
+/** Header click cycles a rule. Shift keeps the other rules and their priority. */
+export function nextSort(value: unknown, column: string, extend: boolean): SortRule[] {
+	const rules = readSort(value);
+	const at = rules.findIndex((r) => normName(r.column) === normName(column));
+	const active = rules[at];
+	const next: SortRule | null = active?.dir === 'desc' ? null : { column, dir: active ? 'desc' : 'asc' };
+	if (!extend) return next ? [next] : [];
+	if (at < 0 && next) rules.push(next);
+	else if (next) rules[at] = next;
+	else if (at >= 0) rules.splice(at, 1);
+	return rules;
+}
+
+/** Stable sort by rules in priority order. Empty cells stay last for each rule. */
+export function sortRows(rows: Row[], columns: string[], sort: SortSpec): Row[] {
+	const rules = readSort(sort);
+	const keyed = rows.map((row, i) => ({ row, i, values: rules.map((r) => cellOf(row, columns, r.column) ?? '') }));
 	keyed.sort((p, q) => {
-		const pe = p.v.trim() === '';
-		const qe = q.v.trim() === '';
-		if (pe !== qe) return pe ? 1 : -1;
-		return sign * compareCells(p.v, q.v) || p.i - q.i;
+		for (let k = 0; k < rules.length; k++) {
+			const a = p.values[k]!;
+			const b = q.values[k]!;
+			const pe = a.trim() === '';
+			const qe = b.trim() === '';
+			if (pe !== qe) return pe ? 1 : -1;
+			const diff = (rules[k]!.dir === 'desc' ? -1 : 1) * compareCells(a, b);
+			if (diff) return diff;
+		}
+		return p.i - q.i;
 	});
 	return keyed.map((k) => k.row);
 }
@@ -287,7 +329,7 @@ export function flatten(notes: SourceNote[], options: FlattenOptions): Flat {
 	const keys = all.map(normName);
 	let rows: Row[] = raw.map((r) => ({ source: r.source, index: r.index, cells: keys.map((k) => r.cells.get(k) ?? '') }));
 	if (options.filter && options.filter.column.trim()) rows = rows.filter((r) => passes(r, all, options.filter!));
-	if (options.sort && options.sort.column) rows = sortRows(rows, all, options.sort);
+	if (options.sort) rows = sortRows(rows, all, options.sort);
 	const groups = options.groupBy && options.groupBy.trim() ? groupRows(rows, all, options.groupBy) : null;
 	// Cut the hidden cells in place, so group rows and rows stay the same objects.
 	if (all.length > columns.length) for (const r of rows) r.cells.length = columns.length;
