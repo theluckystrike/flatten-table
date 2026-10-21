@@ -1,6 +1,6 @@
 # Flatten Table
 
-Flatten Table shows one table row for each item of a list property. A note can hold a list of objects in its properties, for example the milestones of a project or the roles of a person. The core table view of Bases gives one row per note, so the whole list is one cell. Flatten Table gives each item its own row, and the keys of the items become the columns. Your data stays in the properties of your notes.
+Flatten Table shows one table row for each item of a list property. A note can hold a list of objects in its properties, for example the milestones of a project or the roles of a person. The core table view of Bases gives one row per note, so the whole list is one cell. Flatten Table gives each item its own row.
 
 Flatten Table is a view for Bases. The base selects notes; Flatten Table draws rows through the public Bases API.
 
@@ -10,9 +10,9 @@ Flatten Table is a view for Bases. The base selects notes; Flatten Table draws r
 
 ### One row for each list item
 
-Pick a list property in the view options. Each item of that list becomes one row, with a Source column that links to its note. When the items are objects, each key is a column. Keys match without regard to case, so "Owner" in one note and "owner" in another note go into the same column.
+Each item of the list property that you pick in the view options becomes one row, with a Source column that links to its note. When the items are objects, each key is a column. Keys match without regard to case, so "Owner" in one note and "owner" in another note go into the same column.
 
-The core table view puts the full list in one cell:
+The core table view:
 
 <img src="https://raw.githubusercontent.com/theluckystrike/flatten-table/HEAD/docs/one-row-per-note.png" alt="The core Bases table with one row per project note and the milestone list as text in one cell" width="720">
 
@@ -24,9 +24,9 @@ A list of plain values, such as a list of authors, gives one column with the nam
 
 ### Sort by several columns
 
-Click a column header to sort the rows. Click again to sort the other way, and a third time to go back to the order of the base. Numbers sort as numbers, dates in the form YYYY-MM-DD sort in date order, and empty cells stay at the end. The sort is saved with the view in the base file. Old views with one sort column still work.
+Click a column header to sort the rows. Click again to sort the other way, and a third time to go back to the order of the base. Numbers sort as numbers, dates in the form YYYY-MM-DD sort in date order, and empty cells stay at the end. The sort is saved with the view. Old views with one sort column still work.
 
-To sort by several columns, click the first header, then hold Shift and click another header. For example, sort by `owner` first, then `due` within each owner. With two or more rules, each sorted header shows its priority number. Shift-click an active header to reverse its order, then Shift-click again to remove that rule. A click without Shift clears the other sort rules. Rows with equal values keep their base order. On a phone without a keyboard, you can sort by one column only. This feature is free.
+To sort by several columns, click the first header, then hold Shift and click another header. For example, sort by `owner` first, then `due` within each owner. With two or more rules, each sorted header shows its priority number. Shift-click an active header to reverse its order, then Shift-click again to remove that rule. A click without Shift clears the other sort rules. Rows with equal values keep their base order. On a phone without a keyboard, you can sort by one column only.
 
 <img src="https://raw.githubusercontent.com/theluckystrike/flatten-table/HEAD/docs/multi-sort.png" alt="Milestones sorted by owner first and due date second, with priority numbers on the headers" width="720">
 
@@ -46,7 +46,7 @@ Group the rows by a column, or by Source. Each group has a header with its value
 
 ### Filter rows (Pro)
 
-The filters of the base select notes. The row filter of Flatten Table selects items. Keep only the rows where a column contains, equals or does not equal a value, or is empty. For numbers and dates, keep the rows that are larger or smaller than a value. The filter can use a key that the Columns option hides.
+The row filter selects items, not notes. Keep only the rows where a column contains, equals or does not equal a value, or is empty. For numbers and dates, keep the rows that are larger or smaller than a value. The filter can use a key that the Columns option hides.
 
 <img src="https://raw.githubusercontent.com/theluckystrike/flatten-table/HEAD/docs/filter.png" alt="Only the milestones whose status is not done, sorted by due date" width="720">
 
@@ -90,19 +90,21 @@ A wikilink in a property, such as `owner: "[[Ana]]"`, shows as a link.
 
 ## Pro
 
-The free version flattens the lists of up to 50 notes that have items, with column sort, the Source and item number columns, embeds and live update. When more notes have items, the table says how many it left out.
+The free version flattens the lists of up to 50 notes that have items. When more notes have items, the table says how many it left out.
 
-Pro removes the 50-note limit and adds row filters, groups and export to Markdown or CSV. To get it:
+Pro removes this limit and adds row filters, groups and export. To get it:
 
-1. Sponsor [theluckystrike on GitHub Sponsors](https://github.com/sponsors/theluckystrike) with $5 a month, or $15 once. A total payment of $15 meets the payment requirement for Pro without further payment. Sign-in and the checks below still apply.
+1. Sponsor [theluckystrike on GitHub Sponsors](https://github.com/sponsors/theluckystrike) with $5 a month, or $15 once.
 2. In Obsidian, open the settings of Flatten Table and select "Sign in with GitHub".
 3. The plugin copies a code and opens github.com/login/device. Paste the code there and approve.
 
-The status line then shows your GitHub login and the tier. If you sponsor after you sign in, select Refresh. A negative sponsorship answer turns Pro off. See [Payment, account and network](#payment-account-and-network) for the check and offline limits.
+The status line then shows your GitHub login and the tier. If you sponsor after you sign in, select Refresh. See [Payment, account and network](#payment-account-and-network) for the check and offline limits.
 
 <img src="https://raw.githubusercontent.com/theluckystrike/flatten-table/HEAD/docs/settings.png" alt="The settings tab with the Pro section after sign in" width="720">
 
 ## Settings
+
+After a minor or major update, this plugin opens one What's new tab in the background. The tab and settings card suggest other NoteMods plugins and Zovo Chat and link to notemods.com for feedback ([privacy](https://notemods.com/privacy/)). The tab sends no data. Turn the tab off in Settings.
 
 The view options are in the base toolbar. They are saved with each view in the base file.
 
@@ -116,7 +118,7 @@ The view options are in the base toolbar. They are saved with each view in the b
 | Group by column (Pro) | A column name, or Source. |
 | Filter column, rule and value (Pro) | Keeps only the rows that match. |
 
-The plugin settings tab has the Pro section (sign in with GitHub, status and Refresh) and one setting. "Live update delay" is the time in milliseconds to wait after an edit before the tables draw again, from 100 to 2000. The default is 300.
+The plugin settings tab has the Pro section and one setting. "Live update delay" sets the delay of the live update in milliseconds, from 100 to 2000. The default is 300.
 
 ## FAQ
 
