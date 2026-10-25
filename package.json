@@ -1,5 +1,6 @@
 {
 	"name": "flatten-table",
+	"repository": {"type": "git", "url": "theluckystrike/flatten-table.git"},
 	"version": "1.2.0",
 	"private": true,
 	"description": "Shows one table row for each item of a list property, as a Bases view, so one note can give many rows.",
