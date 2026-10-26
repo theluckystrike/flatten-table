@@ -1,6 +1,6 @@
-import { BasesView, Keymap, Notice, TFile, setIcon, type BasesAllOptions, type BasesViewConfig, type HoverParent, type HoverPopover, type QueryController } from 'obsidian';
+import { BasesView, Keymap, TFile, setIcon, type BasesAllOptions, type BasesViewConfig, type HoverParent, type HoverPopover, type QueryController } from 'obsidian';
 import { tokenize, type Token } from './inline';
-import { FREE_MAX_SOURCES, isPro, onProChange } from './pro';
+import { FREE_MAX_SOURCES, isPro, onProChange, proNotice } from './pro';
 import { INDEX_COLUMN, SOURCE_COLUMN, flatten, nextSort, normName, noteName, readSort, type Flat, type FilterOp, type FlattenOptions, type Row, type SourceNote } from './flatten';
 import type FlattenTablePlugin from './main';
 
@@ -252,7 +252,7 @@ export class FlattenView extends BasesView implements HoverParent {
 
 	/** Shows a notice that a feature needs Pro. */
 	static needsPro(feature: string): void {
-		new Notice(`${feature} is a pro feature. Sponsor on GitHub, then sign in from the plugin settings.`);
+		proNotice(`${feature} is a pro feature.`);
 	}
 }
 
