@@ -6,6 +6,26 @@ Flatten Table is a view for Bases. The base selects notes; Flatten Table draws r
 
 <img src="https://raw.githubusercontent.com/theluckystrike/flatten-table/HEAD/docs/flatten-table.gif" alt="A core table with one row per project note, then the same base flattened to one row per milestone, sorted by hours and grouped by owner" width="720">
 
+## Quick start
+
+Write a list of objects in the properties of your notes. The Properties panel of Obsidian cannot edit such a list, so use the source mode:
+
+```yaml
+---
+milestones:
+  - step: Design
+    owner: Ana
+    due: 2026-10-01
+    hours: 3
+  - step: Build
+    owner: Ben
+    due: 2026-10-20
+    hours: 8
+---
+```
+
+Create a base, or open one. Select the view menu in the base toolbar and add a view of the type "Flatten table". Open the view options. In "List property", pick `milestones`. Flatten Table gives each item its own row.
+
 ## Features
 
 ### One row for each list item
@@ -94,7 +114,7 @@ The free version flattens the lists of up to 50 notes that have items. When more
 
 Pro removes this limit and adds row filters, groups and export. To get it:
 
-1. Sponsor [theluckystrike on GitHub Sponsors](https://github.com/sponsors/theluckystrike) with $5 a month, or $15 once.
+1. Sponsor [theluckystrike on GitHub Sponsors](https://github.com/sponsors/theluckystrike?frequency=one-time&metadata_source=flatten-table) with $5 a month, or $15 once.
 2. In Obsidian, open the settings of Flatten Table and select "Sign in with GitHub".
 3. The plugin copies a code and opens github.com/login/device. Paste the code there and approve.
 
@@ -134,7 +154,7 @@ Dataview has `FLATTEN` in its query language, and it does not need Bases. Flatte
 
 The core features are free. Pro features need a GitHub Sponsors sponsorship of theluckystrike: $5 a month or more, or $15 once. A total payment of $15 meets the payment requirement for Pro without further payment. Sign-in and the checks below still apply. Your notes stay readable and editable with or without Pro.
 
-GitHub handles the payment. Sponsor at https://github.com/sponsors/theluckystrike. You need no account for the free features. Pro needs the GitHub account that sponsors.
+GitHub handles the payment. Sponsor at https://github.com/sponsors/theluckystrike?frequency=one-time&metadata_source=flatten-table. You need no account for the free features. Pro needs the GitHub account that sponsors.
 
 Until you select "Sign in with GitHub" in the settings, Flatten Table makes no network requests. Sign in uses the GitHub device flow. Flatten Table sends its public client ID and the scope `read:user` to `https://github.com/login/device/code` and shows you a code. While you enter the code at https://github.com/login/device, it asks `https://github.com/login/oauth/access_token` every few seconds to check the sign-in status. The scope permits profile reads only. GitHub needs this access to show the sponsorship tier. It grants no repository scope and no write access.
 
