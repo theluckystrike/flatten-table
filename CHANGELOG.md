@@ -1,5 +1,11 @@
 # flatten-table
 
+## 1.2.2
+
+### Patch Changes
+
+- In the free version, a view that sets Group by column or Filter column now shows a line in the bar. The line names these Pro options and says that the view does not use them. The first time the view draws them, a notice tells how to get Pro. Click the line to show the notice again.
+
 ## 1.2.1
 
 ### Patch Changes

@@ -21,6 +21,10 @@
 	color: var(--text-warning);
 }
 
+.flatten-table-pro-hint {
+	cursor: pointer;
+}
+
 .flatten-table-export {
 	font-size: var(--font-ui-smaller);
 }

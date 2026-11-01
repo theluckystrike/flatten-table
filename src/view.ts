@@ -1,6 +1,6 @@
 import { BasesView, Keymap, TFile, setIcon, type BasesAllOptions, type BasesViewConfig, type HoverParent, type HoverPopover, type QueryController } from 'obsidian';
 import { tokenize, type Token } from './inline';
-import { FREE_MAX_SOURCES, isPro, onProChange, proNotice } from './pro';
+import { FREE_MAX_SOURCES, isPro, onProChange, proNotice, proText } from './pro';
 import { INDEX_COLUMN, SOURCE_COLUMN, flatten, nextSort, normName, noteName, readSort, type Flat, type FilterOp, type FlattenOptions, type Row, type SourceNote } from './flatten';
 import type FlattenTablePlugin from './main';
 
@@ -31,6 +31,8 @@ export class FlattenView extends BasesView implements HoverParent {
 	lastShowSource = true;
 	private timer: number | null = null;
 	private paths = new Set<string>();
+	/** The lead of the last Pro notice for ignored view options, so a redraw does not show it again. */
+	private proHintLead: string | null = null;
 
 	constructor(
 		controller: QueryController,
@@ -163,11 +165,26 @@ export class FlattenView extends BasesView implements HoverParent {
 				text: `The free version flattens the first ${FREE_MAX_SOURCES} notes with items. ${r.skippedSources} more ${r.skippedSources === 1 ? 'note is' : 'notes are'} left out.`,
 			});
 		}
-		if (!isPro()) return;
+		if (!isPro()) {
+			this.drawProHint(bar);
+			return;
+		}
 		for (const kind of ['markdown', 'csv'] as const) {
 			const b = bar.createEl('button', { cls: 'flatten-table-export', text: kind === 'markdown' ? 'Export Markdown' : 'Export CSV' });
 			b.addEventListener('click', () => void this.plugin.exportView(this, kind));
 		}
+	}
+
+	/** Free user: names the Pro view options that options() drops, and shows the shared Pro notice one time for each set of names. */
+	private drawProHint(bar: HTMLElement): void {
+		const names = setProOptions((k) => this.config.get(k));
+		if (names.length === 0) return;
+		const lead = ignoredProLead(names);
+		const hint = bar.createSpan({ cls: 'flatten-table-limit flatten-table-pro-hint', text: proText(lead), attr: { title: 'Show how to get pro' } });
+		hint.addEventListener('click', () => proNotice(lead));
+		if (this.proHintLead === lead) return;
+		this.proHintLead = lead;
+		proNotice(lead);
 	}
 
 	private drawHead(table: HTMLTableElement, cols: string[], opts: ViewOptions): void {
@@ -290,4 +307,22 @@ export function viewOptions(_config: BasesViewConfig): BasesAllOptions[] {
 			],
 		},
 	];
+}
+
+/** The Pro view options that the base sets, by their names in the view options. A free user does not get them (see options()). */
+export function setProOptions(get: (key: string) => unknown): string[] {
+	const str = (k: string): string => {
+		const v = get(k);
+		return typeof v === 'string' ? v : '';
+	};
+	const names: string[] = [];
+	if (str('groupColumn')) names.push('Group by column');
+	if (str('filterColumn')) names.push('Filter column');
+	return names;
+}
+
+/** "Filter column is a pro option. This view does not use it." for one name, a list with "and" for more. */
+export function ignoredProLead(names: string[]): string {
+	if (names.length === 1) return `${names[0] ?? ''} is a pro option. This view does not use it.`;
+	return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1] ?? ''} are pro options. This view does not use them.`;
 }
