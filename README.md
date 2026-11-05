@@ -118,7 +118,7 @@ Pro removes this limit and adds row filters, groups and export. To get it:
 2. In Obsidian, open the settings of Flatten Table and select "Sign in with GitHub".
 3. The plugin copies a code and opens github.com/login/device. Paste the code there and approve.
 
-The status line then shows your GitHub login and the tier. If you sponsor after you sign in, select Refresh. See [Payment, account and network](#payment-account-and-network) for the check and offline limits.
+The status line then shows your GitHub login and the tier. See [Payment, account and network](#payment-account-and-network) for the check and offline limits.
 
 <img src="https://raw.githubusercontent.com/theluckystrike/flatten-table/HEAD/docs/settings.png" alt="The settings tab with the Pro section after sign in" width="720">
 
@@ -153,6 +153,8 @@ Dataview has `FLATTEN` in its query language, and it does not need Bases. Flatte
 ## Payment, account and network
 
 The core features are free. Pro features need a GitHub Sponsors sponsorship of theluckystrike: $5 a month or more, or $15 once. A total payment of $15 meets the payment requirement for Pro without further payment. Sign-in and the checks below still apply. Your notes stay readable and editable with or without Pro.
+
+[One payment turns on Pro in every NoteMods plugin](https://notemods.com/pro/).
 
 GitHub handles the payment. Sponsor at https://github.com/sponsors/theluckystrike?frequency=one-time&metadata_source=flatten-table. You need no account for the free features. Pro needs the GitHub account that sponsors.
 
