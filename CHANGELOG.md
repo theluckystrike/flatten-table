@@ -1,5 +1,11 @@
 # flatten-table
 
+## 1.2.3
+
+### Patch Changes
+
+- 371e979: The Pro notice of Flatten Table now says that one payment turns on Pro in every NoteMods plugin.
+
 ## 1.2.2
 
 ### Patch Changes

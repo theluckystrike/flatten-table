@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { flatten, itemCells, itemsOf, parseNumber, readPath, scalarText, toCsv, toMarkdown } from '../src/flatten';
 import { propertyName } from '../src/view';
+import { GROWTH_LIMIT, growth } from './growth';
 
 describe('helpers', () => {
 	it('reads a property path, whole key first, then split, without case', () => {
@@ -57,17 +58,23 @@ describe('export', () => {
 });
 
 describe('scale', () => {
-	it('flattens 2,000 notes with 5 items each, sorted, inside a tolerant budget', () => {
-		const notes = Array.from({ length: 2000 }, (_, i) => ({
+	// A wall-clock limit (150 ms strict, 2,000 ms default) depends on the speed of the runner; a CI runner can be 9
+	// times slower than the agent Mac. The guard divides the time for 2,000 notes by the time for 200 notes, lowest
+	// time of each size over 5 rounds, both measured in this test (s1103b ASSERT-B, Procedure AC).
+	const notesOf = (n: number) =>
+		Array.from({ length: n }, (_, i) => ({
 			path: `P/${i}.md`,
 			frontmatter: { m: Array.from({ length: 5 }, (_, j) => ({ step: `S${j}`, hours: (i * 7 + j) % 13, due: `2026-${String(1 + (j % 12)).padStart(2, '0')}-01` })) },
 		}));
-		const t0 = performance.now();
-		const r = flatten(notes, { property: 'm', sort: { column: 'hours', dir: 'desc' }, filter: { column: 'step', op: 'not-equals', value: 'S0' } });
-		const ms = performance.now() - t0;
+	const options = { property: 'm', sort: { column: 'hours', dir: 'desc' }, filter: { column: 'step', op: 'not-equals', value: 'S0' } } as const;
+	it('flattens 2,000 notes with 5 items each, sorted, in linear time', () => {
+		const r = flatten(notesOf(2000), options);
 		expect(r.rows).toHaveLength(8000);
 		expect(r.rows[0]!.cells[1]).toBe('12');
-		// Strict budget only under FX_PERF_STRICT=1; the default ceiling tolerates a busy machine.
-		expect(ms).toBeLessThan(process.env.FX_PERF_STRICT === '1' ? 150 : 2000);
+		const g = growth((n) => {
+			const notes = notesOf(n);
+			return () => flatten(notes, options);
+		}, 2000);
+		expect(g.ratio, g.text).toBeLessThan(GROWTH_LIMIT);
 	});
 });
